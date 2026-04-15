@@ -168,15 +168,18 @@ function updateLiveStatuses() {
     var isKick = s.platform === 'kick';
     (isKick ? checkKick : checkTwitch)(s.username, function(isLive) {
       log(s.name + ': ' + (isLive ? 'LIVE' : 'off'));
+
       var el = document.getElementById(s.id);
       if (el) {
         var iw = el.getElementsByTagName('div')[0];
-        if (iw) iw.className = 'iw' + (isLive ? ' on' : '');
+        if (iw) {
+          iw.className = 'iw checking';           // force repaint
+          setTimeout(function() {
+            iw.className = isLive ? 'iw on' : 'iw';
+          }, 10);
+        }
       }
       done++;
-      if (done === streamers.length) {
-        // all done
-      }
     });
   }
 
