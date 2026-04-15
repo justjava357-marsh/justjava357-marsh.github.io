@@ -159,11 +159,7 @@ function updateLiveStatuses() {
     var el = document.getElementById(streamers[i].id);
     if (el) {
       var iw = el.getElementsByTagName('div')[0];
-if (iw) {
-  iw.className = 'iw';                    // reset first
-  if (isLive) iw.className = 'iw on';     // then apply on (green)
-  else        iw.className = 'iw';        // red stays from base .iw
-}
+      if (iw) iw.className = 'iw checking';
     }
   }
 
