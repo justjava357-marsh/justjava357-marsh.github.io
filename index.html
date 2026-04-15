@@ -6,119 +6,141 @@
 <style>
 body{margin:0;background:#111;color:#ddd;font-family:Arial,sans-serif}
 #o{width:300px;background:#1e2937;border:2px solid #444;margin:20px auto;padding:12px}
-.header{font-size:12px;font-weight:bold;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.header::before{content:'';width:8px;height:8px;background:#10b981;border-radius:50%}
-.grid{display:block;white-space:nowrap}
+.header{font-size:12px;font-weight:bold;margin-bottom:10px}
+.dot{display:inline-block;width:8px;height:8px;background:#10b981;margin-right:6px;vertical-align:middle}
+.last{font-size:10px;color:#888;margin-left:8px}
+.grid{white-space:nowrap}
 .s{display:inline-block;width:68px;margin:4px 2px;text-align:center;vertical-align:top}
-.iw{width:52px;height:52px;border:5px solid #ef4444;border-radius:9999px;background:#0f172a;margin:0 auto 4px;display:block;position:relative}
+.iw{width:52px;height:52px;border:5px solid #ef4444;background:#0f172a;margin:0 auto 4px}
 .iw.on{border-color:#10b981}
 .iw.checking{border-color:#888}
-.iw img{width:42px;height:42px;border-radius:9999px;display:block;margin:auto}
+.iw img{width:42px;height:42px;display:block;margin:5px auto 0}
 .name{font-size:10px;word-break:break-all}
-.last{font-size:10px;color:#888;margin-left:8px}
+#dbg{font-size:10px;color:#666;margin-top:8px;word-break:break-all;line-height:1.6}
 </style>
 </head>
 <body>
 <div id="o">
-<div class="header">LIVE STATUS <span id="last" class="last"></span></div>
-<div id="g" class="grid"></div>
+  <div class="header"><span class="dot"></span>LIVE STATUS<span id="last" class="last"></span></div>
+  <div id="g" class="grid"></div>
+  <div id="dbg"></div>
 </div>
-
 <script>
-// grug + stone-age kindle fire fix: ultra basic, no grid/flex, no advanced css
-let streamers = [];
-let twitchToken = null;
-const TWITCH_CLIENT_ID = '3l5p1q1v5av0qkunjqsr18we0df3z3';     // ← put your id here
-const TWITCH_CLIENT_SECRET = 'jwb7pmf4hbs8tds6wqdz6tbmfl6jbo'; // ← put your secret here
+var TWITCH_CLIENT_ID = '3l5p1q1v5av0qkunjqsr18we0df3z3';     // <- put your id here
+var TWITCH_CLIENT_SECRET = 'jwb7pmf4hbs8tds6wqdz6tbmfl6jbo'; // <- put your secret here
+var twitchToken = null;
 
-async function getTwitchToken(){
-  if(twitchToken) return twitchToken;
-  if(!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET) return null;
-  try{
-    const r = await fetch('https://id.twitch.tv/oauth2/token',{
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:new URLSearchParams({client_id:TWITCH_CLIENT_ID,client_secret:TWITCH_CLIENT_SECRET,grant_type:'client_credentials'})
+var streamers = [
+  {id:'s-xqc',     name:'xqc',          platform:'kick',   username:'xqc'},
+  {id:'s-tyler1',  name:'loltyler1',     platform:'twitch', username:'loltyler1'},
+  {id:'s-ohne',    name:'ohnePixel',     platform:'twitch', username:'ohnePixel'},
+  {id:'s-jerma',   name:'Jerma985',      platform:'twitch', username:'Jerma985'},
+  {id:'s-hobbs',   name:'WowHobbs',      platform:'twitch', username:'WowHobbs'},
+  {id:'s-thijs',   name:'Thijs',         platform:'twitch', username:'Thijs'},
+  {id:'s-trick2g', name:'Trick2g',       platform:'twitch', username:'Trick2g'},
+  {id:'s-flight',  name:'Flight23white', platform:'twitch', username:'Flight23white'}
+];
+
+function log(msg) {
+  var el = document.getElementById('dbg');
+  if (el) el.innerHTML += msg + '<br>';
+}
+
+async function getTwitchToken() {
+  if (twitchToken) return twitchToken;
+  if (!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET) {
+    log('no twitch creds set');
+    return null;
+  }
+  try {
+    const r = await fetch('https://id.twitch.tv/oauth2/token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: new URLSearchParams({
+        client_id: TWITCH_CLIENT_ID,
+        client_secret: TWITCH_CLIENT_SECRET,
+        grant_type: 'client_credentials'
+      })
     });
     const d = await r.json();
-    if(d.access_token) twitchToken = d.access_token;
+    if (d.access_token) twitchToken = d.access_token;
+    log('token: ' + (twitchToken ? 'ok' : 'failed'));
     return twitchToken;
-  }catch(e){return null}
+  } catch(e) {
+    log('token err: ' + e.message);
+    return null;
+  }
 }
 
-async function fetchKick(u){
-  try{
-    const r = await fetch(`https://kick.com/api/v1/channels/${u}`);
+async function checkKick(username) {
+  try {
+    const r = await fetch('https://kick.com/api/v1/channels/' + username);
     const d = await r.json();
-    return {is_live: !!(d.livestream && d.livestream.is_live)};
-  }catch(e){return {is_live:false}}
+    return !!(d.livestream && d.livestream.is_live);
+  } catch(e) {
+    log('kick/' + username + ' err: ' + e.message);
+    return false;
+  }
 }
 
-async function fetchTwitch(u){
+async function checkTwitch(username) {
   const t = await getTwitchToken();
-  if(!t) return {is_live:false};
-  try{
-    const r = await fetch(`https://api.twitch.tv/helix/streams?user_login=${u}`,{
-      headers:{'Client-ID':TWITCH_CLIENT_ID,'Authorization':`Bearer ${t}`}
+  if (!t) return false;
+  try {
+    const r = await fetch('https://api.twitch.tv/helix/streams?user_login=' + username, {
+      headers: {'Client-ID': TWITCH_CLIENT_ID, 'Authorization': 'Bearer ' + t}
     });
     const d = await r.json();
-    return {is_live: !!(d.data && d.data.length > 0)};
-  }catch(e){return {is_live:false}}
+    return !!(d.data && d.data.length > 0);
+  } catch(e) {
+    log('twitch/' + username + ' err: ' + e.message);
+    return false;
+  }
 }
 
-function updateLastTime(){
-  const n = new Date();
-  const t = n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
-  document.getElementById('last').textContent = `• ${t}`;
+function updateLastTime() {
+  var n = new Date();
+  var h = ('0' + n.getHours()).slice(-2);
+  var m = ('0' + n.getMinutes()).slice(-2);
+  document.getElementById('last').innerHTML = ' &bull; ' + h + ':' + m;
 }
 
-async function updateLiveStatuses(){
+async function updateLiveStatuses() {
   updateLastTime();
+  document.getElementById('dbg').innerHTML = '';
 
-  // show checking
-  document.querySelectorAll('.iw').forEach(iw => {
-    iw.classList.add('checking');
-    iw.classList.remove('on');
-  });
+  for (var i = 0; i < streamers.length; i++) {
+    var el = document.getElementById(streamers[i].id);
+    if (el) el.getElementsByTagName('div')[0].className = 'iw checking';
+  }
 
-  await Promise.all(streamers.map(async s => {
-    const st = s.platform === 'kick' ? await fetchKick(s.username) : await fetchTwitch(s.username);
-    const el = document.getElementById(s.id);
-    if(el){
-      const iw = el.querySelector('.iw');
-      iw.classList.remove('checking');
-      if(st.is_live) iw.classList.add('on');
-    }
+  await Promise.all(streamers.map(async function(s) {
+    var isLive = s.platform === 'kick'
+      ? await checkKick(s.username)
+      : await checkTwitch(s.username);
+    log(s.name + ': ' + (isLive ? 'LIVE' : 'off'));
+    var el = document.getElementById(s.id);
+    if (el) el.getElementsByTagName('div')[0].className = 'iw' + (isLive ? ' on' : '');
   }));
 }
 
-async function loadAndRender(){
-  streamers = [
-    {id:"kick-xqc",name:"xqc",platform:"kick",username:"xqc"},
-    {id:"twitch-loltyler1",name:"loltyler1",platform:"twitch",username:"loltyler1"},
-    {id:"twitch-ohnePixel",name:"ohnePixel",platform:"twitch",username:"ohnePixel"},
-    {id:"twitch-Jerma985",name:"Jerma985",platform:"twitch",username:"Jerma985"},
-    {id:"twitch-WowHobbs",name:"WowHobbs",platform:"twitch",username:"WowHobbs"},
-    {id:"twitch-Thijs",name:"Thijs",platform:"twitch",username:"Thijs"},
-    {id:"twitch-Trick2g",name:"Trick2g",platform:"twitch",username:"Trick2g"},
-    {id:"twitch-Flight23white",name:"Flight23white",platform:"twitch",username:"Flight23white"}
-  ];
-
-  let html = '';
-  streamers.forEach(s => {
-    html += `
-      <div class="s" id="${s.id}">
-        <div class="iw"><img src="https://picsum.photos/id/${100 + streamers.indexOf(s)}/300/300" alt="${s.name}"></div>
-        <div class="name">${s.name}</div>
-      </div>`;
-  });
+function render() {
+  var html = '';
+  for (var i = 0; i < streamers.length; i++) {
+    var s = streamers[i];
+    html += '<div class="s" id="' + s.id + '">'
+          +   '<div class="iw">'
+          +     '<img src="https://picsum.photos/id/' + (100 + i) + '/42/42" alt="' + s.name + '">'
+          +   '</div>'
+          +   '<div class="name">' + s.name + '</div>'
+          + '</div>';
+  }
   document.getElementById('g').innerHTML = html;
-
-  await updateLiveStatuses();
 }
 
-window.onload = () => {
-  loadAndRender();
+window.onload = function() {
+  render();
+  updateLiveStatuses();
   setInterval(updateLiveStatuses, 180000);
 };
 </script>
