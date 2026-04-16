@@ -175,8 +175,11 @@ function updateLiveStatuses() {
       if (el) {
         var iw = el.getElementsByTagName('div')[0];
         if (iw) {
-          // full shorthand - old Silk needs this to actually show any border color
-          iw.style.border = isLive ? '5px solid #10b981' : '5px solid #ef4444';
+          // full inline shorthand + tiny delay — last resort for old Silk
+          iw.style.border = '5px solid #888';   // reset
+          setTimeout(function() {
+            iw.style.border = isLive ? '5px solid #10b981' : '5px solid #ef4444';
+          }, 20);
         }
       }
       done++;
@@ -187,7 +190,6 @@ function updateLiveStatuses() {
     checkOne(streamers[i]);
   }
 }
-
 function render() {
   var html = '';
   for (var i = 0; i < streamers.length; i++) {
