@@ -159,7 +159,10 @@ function updateLiveStatuses() {
     var el = document.getElementById(streamers[i].id);
     if (el) {
       var iw = el.getElementsByTagName('div')[0];
-      if (iw) iw.className = 'iw checking';
+      if (iw) {
+        iw.className = 'iw checking';
+        iw.style.borderColor = '#888';   // gray while checking
+      }
     }
   }
 
@@ -173,10 +176,7 @@ function updateLiveStatuses() {
       if (el) {
         var iw = el.getElementsByTagName('div')[0];
         if (iw) {
-          iw.className = 'iw checking';           // force repaint
-          setTimeout(function() {
-            iw.className = isLive ? 'iw on' : 'iw';
-          }, 10);
+          iw.style.borderColor = isLive ? '#10b981' : '#ef4444';
         }
       }
       done++;
