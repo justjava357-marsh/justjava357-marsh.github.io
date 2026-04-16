@@ -50,7 +50,8 @@ function log(msg) {
 
 function getXMLHttpRequest(url, method, headers, body, callback) {
   var xhr = new XMLHttpRequest();
-  xhr.open(method, url, true);
+  var cacheBuster = (url.indexOf('?') === -1 ? '?' : '&') + '_t=' + Date.now();
+  xhr.open(method, url + cacheBuster, true);
   for (var h in headers) {
     if (headers.hasOwnProperty(h)) xhr.setRequestHeader(h, headers[h]);
   }
@@ -201,7 +202,7 @@ function render() {
 window.onload = function() {
   render();
   updateLiveStatuses();
-  setInterval(updateLiveStatuses, 180000); // 3 minutes
+  setInterval(updateLiveStatuses, 18000); // 3 minutes
 };
 </script>
 </body>
