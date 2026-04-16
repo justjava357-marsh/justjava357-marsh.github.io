@@ -162,8 +162,6 @@ function updateLiveStatuses() {
   function checkOne(s) {
     var isKick = s.platform === 'kick';
     (isKick ? checkKick : checkTwitch)(s.username, function(isLive) {
-      log(s.name + ': ' + (isLive ? 'LIVE' : 'off'));
-
       var el = document.getElementById(s.id);
       if (el) {
         var iw = el.getElementsByTagName('div')[0];
@@ -192,7 +190,7 @@ function render() {
     var s = streamers[i];
     html += '<div class="s" id="' + s.id + '">'
           + '<div class="iw">'
-          + '<img src="https://picsum.photos/id/' + (100 + i) + '/42/42" alt="' + s.name + '">'
+          + '<img src="https://picsum.photos/id/' + (100 + i) + '/150/150" alt="' + s.name + '">'
           + '</div>'
           + '<div class="name">' + s.name + '</div>'
           + '</div>';
