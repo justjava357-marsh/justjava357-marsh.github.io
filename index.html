@@ -50,8 +50,7 @@ function log(msg) {
 
 function getXMLHttpRequest(url, method, headers, body, callback) {
   var xhr = new XMLHttpRequest();
-  var cacheBuster = (url.indexOf('?') === -1 ? '?' : '&') + '_t=' + Date.now();
-  xhr.open(method, url + cacheBuster, true);
+  xhr.open(method, url, true);
   for (var h in headers) {
     if (headers.hasOwnProperty(h)) xhr.setRequestHeader(h, headers[h]);
   }
@@ -202,7 +201,13 @@ function render() {
 window.onload = function() {
   render();
   updateLiveStatuses();
-  setInterval(updateLiveStatuses, 18000); // 3 minutes
+
+  // Force full page reload every 3 minutes (Opera Mini workaround)
+  // This is the only reliable way to wake up JS and fetch fresh data
+  setInterval(function() {
+    var url = window.location.href.split('?')[0];           // remove old params
+    window.location.href = url + '?t=' + Date.now();        // force fresh load
+  }, 18000);  // 3 minutes
 };
 </script>
 </body>
