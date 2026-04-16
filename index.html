@@ -148,37 +148,46 @@ function updateLastTime() {
 function updateLiveStatuses() {
   updateLastTime();
   document.getElementById('dbg').innerHTML = '';
-  // set checking state
+
+  // set checking state - gray
   for (var i = 0; i < streamers.length; i++) {
     var el = document.getElementById(streamers[i].id);
     if (el) {
       var iw = el.getElementsByTagName('div')[0];
       if (iw) {
-        iw.style.borderColor = '#888';
+        iw.style.border = '5px solid #888';
       }
     }
   }
-  var done = 0;
+
   function checkOne(s) {
     var isKick = s.platform === 'kick';
     (isKick ? checkKick : checkTwitch)(s.username, function(isLive) {
       log(s.name + ': ' + (isLive ? 'LIVE' : 'off'));
+
       var el = document.getElementById(s.id);
       if (el) {
         var iw = el.getElementsByTagName('div')[0];
         if (iw) {
-          // Explicit separate properties + forced reflow for old Silk
-          iw.style.borderWidth = '5px';
-          iw.style.borderStyle = 'solid';
-          iw.style.borderColor = isLive ? '#10b981' : '#ef4444';
+          // THIS is the part that matters for super old Silk
+          if (isLive) {
+            iw.style.border = '5px solid #10b981';
+          } else {
+            iw.style.border = '5px solid #ef4444';
+          }
 
-          // force repaint on ancient browsers
+          // force old browser to repaint
           void iw.offsetHeight;
+          // extra hammer because it's 2011-era Silk
+          iw.style.display = 'none';
+          setTimeout(function() {
+            iw.style.display = 'block';
+          }, 10);
         }
       }
-      done++;
     });
   }
+
   for (var i = 0; i < streamers.length; i++) {
     checkOne(streamers[i]);
   }
