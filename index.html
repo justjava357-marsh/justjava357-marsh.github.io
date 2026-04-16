@@ -12,11 +12,11 @@ body{margin:0;background:#111;color:#ddd;font-family:Arial,sans-serif}
 .last{font-size:10px;color:#888;margin-left:8px}
 .grid{white-space:nowrap}
 .s{display:inline-block;width:68px;margin:4px 2px;text-align:center;vertical-align:top}
-.iw{width:52px;height:52px;border:5px solid #444;background:#0f172a;margin:0 auto 4px} /* default dark */
+.iw{width:100px;height:100px;border:5px solid #444;background:#0f172a;margin:0 10px 5px} /* default dark */
 .iw.checking {background:#555}   /* gray while checking */
 .iw.live     {background:#10b981} /* bright green = LIVE */
 .iw.off      {background:#ef4444} /* red = offline */
-.iw img{width:42px;height:42px;display:block;margin:5px auto 0}
+.iw img{width:90px;height:90px;display:block;margin:10px auto 5px}
 .name{font-size:10px;word-break:break-all}
 #dbg{font-size:10px;color:#666;margin-top:8px;word-break:break-all;line-height:1.6}
 </style>
@@ -33,14 +33,14 @@ var TWITCH_CLIENT_ID = '3l5p1q1v5av0qkunjqsr18we0df3z3';
 var TWITCH_CLIENT_SECRET = 'jwb7pmf4hbs8tds6wqdz6tbmfl6jbo';
 var twitchToken = null;
 var streamers = [
-  {id:'s-xqc', name:'xqc', platform:'kick', username:'xqc'},
-  {id:'s-tyler1', name:'loltyler1', platform:'twitch', username:'loltyler1'},
-  {id:'s-ohne', name:'ohnePixel', platform:'twitch', username:'ohnePixel'},
-  {id:'s-jerma', name:'Jerma985', platform:'twitch', username:'Jerma985'},
-  {id:'s-hobbs', name:'WowHobbs', platform:'twitch', username:'WowHobbs'},
+  {id:'s-xqc', name:'xQc', platform:'kick', username:'xqc'},
+  {id:'s-tyler1', name:'T1', platform:'twitch', username:'loltyler1'},
+  {id:'s-ohne', name:'ohne', platform:'twitch', username:'ohnePixel'},
+  {id:'s-jerma', name:'Jerma', platform:'twitch', username:'Jerma985'},
+  {id:'s-hobbs', name:'Hobbs', platform:'twitch', username:'WowHobbs'},
   {id:'s-thijs', name:'Thijs', platform:'twitch', username:'Thijs'},
-  {id:'s-trick2g', name:'Trick2g', platform:'twitch', username:'Trick2g'},
-  {id:'s-flight', name:'Flight23white', platform:'twitch', username:'Flight23white'}
+  {id:'s-trick2g', name:'Trick', platform:'twitch', username:'Trick2g'},
+  {id:'s-flight', name:'flight', platform:'twitch', username:'Flight23white'}
 ];
 
 function log(msg) {
