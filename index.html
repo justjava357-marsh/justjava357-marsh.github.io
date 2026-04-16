@@ -26,14 +26,11 @@ body{margin:0;background:#111;color:#ddd;font-family:Arial,sans-serif}
   <div id="g" class="grid"></div>
   <div id="dbg"></div>
 </div>
-
 <script>
 // Keep your credentials (they are client credentials anyway)
 var TWITCH_CLIENT_ID = '3l5p1q1v5av0qkunjqsr18we0df3z3';
 var TWITCH_CLIENT_SECRET = 'jwb7pmf4hbs8tds6wqdz6tbmfl6jbo';
-
 var twitchToken = null;
-
 var streamers = [
   {id:'s-xqc', name:'xqc', platform:'kick', username:'xqc'},
   {id:'s-tyler1', name:'loltyler1', platform:'twitch', username:'loltyler1'},
@@ -70,11 +67,9 @@ function getTwitchToken(callback) {
     log('no twitch creds');
     return callback(null);
   }
-
   var body = 'client_id=' + encodeURIComponent(TWITCH_CLIENT_ID) +
              '&client_secret=' + encodeURIComponent(TWITCH_CLIENT_SECRET) +
              '&grant_type=client_credentials';
-
   getXMLHttpRequest(
     'https://id.twitch.tv/oauth2/token',
     'POST',
@@ -153,43 +148,42 @@ function updateLastTime() {
 function updateLiveStatuses() {
   updateLastTime();
   document.getElementById('dbg').innerHTML = '';
-
   // set checking state
   for (var i = 0; i < streamers.length; i++) {
     var el = document.getElementById(streamers[i].id);
     if (el) {
       var iw = el.getElementsByTagName('div')[0];
       if (iw) {
-        iw.style.border = '5px solid #888';   // gray while checking
+        iw.style.borderColor = '#888';
       }
     }
   }
-
   var done = 0;
   function checkOne(s) {
     var isKick = s.platform === 'kick';
     (isKick ? checkKick : checkTwitch)(s.username, function(isLive) {
       log(s.name + ': ' + (isLive ? 'LIVE' : 'off'));
-
       var el = document.getElementById(s.id);
       if (el) {
         var iw = el.getElementsByTagName('div')[0];
         if (iw) {
-          // full inline shorthand + tiny delay — last resort for old Silk
-          iw.style.border = '5px solid #888';   // reset
-          setTimeout(function() {
-            iw.style.border = isLive ? '5px solid #10b981' : '5px solid #ef4444';
-          }, 20);
+          // Explicit separate properties + forced reflow for old Silk
+          iw.style.borderWidth = '5px';
+          iw.style.borderStyle = 'solid';
+          iw.style.borderColor = isLive ? '#10b981' : '#ef4444';
+
+          // force repaint on ancient browsers
+          void iw.offsetHeight;
         }
       }
       done++;
     });
   }
-
   for (var i = 0; i < streamers.length; i++) {
     checkOne(streamers[i]);
   }
 }
+
 function render() {
   var html = '';
   for (var i = 0; i < streamers.length; i++) {
