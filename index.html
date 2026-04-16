@@ -209,6 +209,12 @@ window.onload = function() {
     window.location.replace(base + '?t=' + Date.now());
   }, 18000);  // 3 minutes
 };
+
+  // Minimal user-tap refresh for Opera Mini Extreme on Kindle Fire 1st gen
+document.getElementById('o').addEventListener('click', function() {
+  var base = window.location.href.split('?')[0];
+  window.location.replace(base + '?t=' + Date.now());
+});
 </script>
 </body>
 </html>
