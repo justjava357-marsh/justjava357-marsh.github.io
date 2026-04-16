@@ -160,8 +160,7 @@ function updateLiveStatuses() {
     if (el) {
       var iw = el.getElementsByTagName('div')[0];
       if (iw) {
-        iw.className = 'iw checking';
-        iw.style.borderColor = '#888';   // gray while checking
+        iw.style.border = '5px solid #888';   // gray while checking
       }
     }
   }
@@ -176,7 +175,8 @@ function updateLiveStatuses() {
       if (el) {
         var iw = el.getElementsByTagName('div')[0];
         if (iw) {
-          iw.style.borderColor = isLive ? '#10b981' : '#ef4444';
+          // full shorthand - old Silk needs this to actually show any border color
+          iw.style.border = isLive ? '5px solid #10b981' : '5px solid #ef4444';
         }
       }
       done++;
