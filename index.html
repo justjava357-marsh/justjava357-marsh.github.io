@@ -202,11 +202,11 @@ window.onload = function() {
   render();
   updateLiveStatuses();
 
-  // Force full page reload every 3 minutes (Opera Mini workaround)
-  // This is the only reliable way to wake up JS and fetch fresh data
+  // Surgical auto-refresh every 3 minutes for Opera Mini Extreme mode
+  // Forces proxy to re-download page + run fresh checks (keeps Extreme on)
   setInterval(function() {
-    var url = window.location.href.split('?')[0];           // remove old params
-    window.location.href = url + '?t=' + Date.now();        // force fresh load
+    var base = window.location.href.split('?')[0];   // strip old params
+    window.location.replace(base + '?t=' + Date.now());
   }, 18000);  // 3 minutes
 };
 </script>
