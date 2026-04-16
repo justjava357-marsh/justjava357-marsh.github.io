@@ -149,13 +149,13 @@ function updateLiveStatuses() {
   updateLastTime();
   document.getElementById('dbg').innerHTML = '';
 
-  // set checking state - gray
   for (var i = 0; i < streamers.length; i++) {
-    var el = document.getElementById(streamers[i].id);
+    var s = streamers[i];
+    var el = document.getElementById(s.id);
     if (el) {
       var iw = el.getElementsByTagName('div')[0];
       if (iw) {
-        iw.style.border = '5px solid #888';
+        iw.style.border = '5px solid #888';   // checking
       }
     }
   }
@@ -169,20 +169,14 @@ function updateLiveStatuses() {
       if (el) {
         var iw = el.getElementsByTagName('div')[0];
         if (iw) {
-          // THIS is the part that matters for super old Silk
-          if (isLive) {
-            iw.style.border = '5px solid #10b981';
-          } else {
-            iw.style.border = '5px solid #ef4444';
-          }
-
-          // force old browser to repaint
+          // super old Silk friendly
+          iw.style.border = isLive ? '5px solid #10b981' : '5px solid #ef4444';
           void iw.offsetHeight;
-          // extra hammer because it's 2011-era Silk
-          iw.style.display = 'none';
+
+          // final hammer
           setTimeout(function() {
-            iw.style.display = 'block';
-          }, 10);
+            iw.style.border = isLive ? '5px solid #10b981' : '5px solid #ef4444';
+          }, 30);
         }
       }
     });
