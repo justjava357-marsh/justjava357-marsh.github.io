@@ -188,12 +188,12 @@ function render() {
   var html = '';
   for (var i = 0; i < streamers.length; i++) {
     var s = streamers[i];
-   html += '<div class="s" id="' + s.id + '">'
-      + '<div class="iw">'
-      + '<div style="width:150px;height:150px;background:#000;border:10px solid #666;margin:5px auto 0;"></div>'  // black square
-      + '</div>'
-      + '<div class="name">' + s.name + '</div>'
-      + '</div>';
+    html += '<div class="s" id="' + s.id + '">'
+          + '<div class="iw">'
+          + '<div style="display:block;width:150px;height:150px;background:#000;border:10px solid #666;margin:5px auto 0;"></div>'
+          + '</div>'
+          + '<div class="name">' + s.name + '</div>'
+          + '</div>';
   }
   document.getElementById('g').innerHTML = html;
 }
