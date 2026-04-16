@@ -12,9 +12,10 @@ body{margin:0;background:#111;color:#ddd;font-family:Arial,sans-serif}
 .last{font-size:10px;color:#888;margin-left:8px}
 .grid{white-space:nowrap}
 .s{display:inline-block;width:68px;margin:4px 2px;text-align:center;vertical-align:top}
-.iw{width:52px;height:52px;border:5px solid #ef4444;background:#0f172a;margin:0 auto 4px}
-.iw.on{border-color:#10b981}
-.iw.checking{border-color:#888}
+.iw{width:52px;height:52px;border:5px solid #444;background:#0f172a;margin:0 auto 4px} /* default dark */
+.iw.checking {background:#555}   /* gray while checking */
+.iw.live     {background:#10b981} /* bright green = LIVE */
+.iw.off      {background:#ef4444} /* red = offline */
 .iw img{width:42px;height:42px;display:block;margin:5px auto 0}
 .name{font-size:10px;word-break:break-all}
 #dbg{font-size:10px;color:#666;margin-top:8px;word-break:break-all;line-height:1.6}
@@ -149,14 +150,12 @@ function updateLiveStatuses() {
   updateLastTime();
   document.getElementById('dbg').innerHTML = '';
 
+  // set all to checking (gray)
   for (var i = 0; i < streamers.length; i++) {
-    var s = streamers[i];
-    var el = document.getElementById(s.id);
+    var el = document.getElementById(streamers[i].id);
     if (el) {
       var iw = el.getElementsByTagName('div')[0];
-      if (iw) {
-        iw.style.border = '5px solid #888';   // checking
-      }
+      if (iw) iw.className = 'iw checking';
     }
   }
 
@@ -169,14 +168,14 @@ function updateLiveStatuses() {
       if (el) {
         var iw = el.getElementsByTagName('div')[0];
         if (iw) {
-          // super old Silk friendly
-          iw.style.border = isLive ? '5px solid #10b981' : '5px solid #ef4444';
-          void iw.offsetHeight;
+          // super basic class change — most reliable on old Silk
+          iw.className = isLive ? 'iw live' : 'iw off';
 
-          // final hammer
+          // force repaint hammer for 2011 Silk
+          iw.style.display = 'none';
           setTimeout(function() {
-            iw.style.border = isLive ? '5px solid #10b981' : '5px solid #ef4444';
-          }, 30);
+            iw.style.display = 'block';
+          }, 10);
         }
       }
     });
