@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <title>S-Tier Live</title>
 <meta name="viewport" content="width=720, initial-scale=1.0">
+<meta http-equiv="refresh" content="18">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
 <style>
 body{margin:0;background:#111;color:#ddd;font-family:Arial,sans-serif}
 #o{width:700px;background:#1e2937;border:2px solid #444;margin:20px auto;padding:12px}
@@ -72,7 +75,7 @@ function getTwitchToken(callback) {
              '&client_secret=' + encodeURIComponent(TWITCH_CLIENT_SECRET) +
              '&grant_type=client_credentials';
   getXMLHttpRequest(
-    'https://id.twitch.tv/oauth2/token',
+    'https://id.twitch.tv/oauth2/token?_=' + Date.now(),
     'POST',
     {'Content-Type': 'application/x-www-form-urlencoded'},
     body,
@@ -90,7 +93,7 @@ function getTwitchToken(callback) {
 
 function checkKick(username, callback) {
   getXMLHttpRequest(
-    'https://kick.com/api/v1/channels/' + username,
+    'https://kick.com/api/v1/channels/' + username + '?_=' + Date.now(),
     'GET',
     {},
     null,
@@ -116,7 +119,7 @@ function checkTwitch(username, callback) {
       return;
     }
     getXMLHttpRequest(
-      'https://api.twitch.tv/helix/streams?user_login=' + username,
+      'https://api.twitch.tv/helix/streams?user_login=' + username + '&_=' + Date.now(),
       'GET',
       {
         'Client-ID': TWITCH_CLIENT_ID,
@@ -201,20 +204,7 @@ function render() {
 window.onload = function() {
   render();
   updateLiveStatuses();
-
-  // Surgical auto-refresh every 3 minutes for Opera Mini Extreme mode
-  // Forces proxy to re-download page + run fresh checks (keeps Extreme on)
-  setInterval(function() {
-    var base = window.location.href.split('?')[0];   // strip old params
-    window.location.replace(base + '?t=' + Date.now());
-  }, 18000);  // 3 minutes
 };
-
-  // Minimal user-tap refresh for Opera Mini Extreme on Kindle Fire 1st gen
-document.getElementById('o').addEventListener('click', function() {
-  var base = window.location.href.split('?')[0];
-  window.location.replace(base + '?t=' + Date.now());
-});
 </script>
 </body>
 </html>
