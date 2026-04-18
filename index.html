@@ -5,10 +5,12 @@
 <title>S-Tier Live</title>
 <meta name="viewport" content="width=720, initial-scale=1.0">
 
-<!-- THE THREE KEY LINES: browser-level refresh + prevent proxy caching stale snapshot -->
-<meta http-equiv="refresh" content="10">
+<!-- NO-CACHE hints (kept exactly as you had them) -->
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
+
+<!-- PLACEHOLDER refresh – JS below will overwrite it with cache-busting URL -->
+<meta http-equiv="refresh" content="10">
 
 <style>
 body{margin:0;background:#111;color:#ddd;font-family:Arial,sans-serif}
@@ -162,7 +164,12 @@ function render() {
 window.onload = function() {
   render();
   updateLiveStatuses();
-  // No JS timers. The <meta http-equiv="refresh"> above handles reloading.
+
+  // === OPERA MINI EXTREME WORKAROUND (2 lines) ===
+  // Runs on the proxy during initial load → snapshot gets a fresh URL for next refresh
+  var meta = document.querySelector('meta[http-equiv="refresh"]');
+  var base = window.location.href.split('?')[0];           // strip any old ?t=
+  meta.setAttribute('content', '10; url=' + base + '?t=' + Date.now());
 };
 </script>
 </body>
