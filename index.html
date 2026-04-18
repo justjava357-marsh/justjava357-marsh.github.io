@@ -5,11 +5,11 @@
 <title>S-Tier Live</title>
 <meta name="viewport" content="width=720, initial-scale=1.0">
 
-<!-- NO-CACHE hints (kept exactly as you had them) -->
+<!-- NO-CACHE hints (unchanged) -->
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
 
-<!-- PLACEHOLDER refresh – JS below will overwrite it with cache-busting URL -->
+<!-- PLACEHOLDER – early JS will overwrite with cache-busting URL -->
 <meta http-equiv="refresh" content="10">
 
 <style>
@@ -28,6 +28,17 @@ body{margin:0;background:#111;color:#ddd;font-family:Arial,sans-serif}
 .name{font-size:10px;word-break:break-all}
 #dbg{font-size:10px;color:#666;margin-top:8px;word-break:break-all;line-height:1.6}
 </style>
+
+<!-- EARLY SCRIPT – runs before proxy snapshot (this is the only change needed) -->
+<script>
+(function(){
+  var meta = document.querySelector('meta[http-equiv="refresh"]');
+  if (meta) {
+    var base = (window.location.href || '').split('?')[0];
+    meta.setAttribute('content', '10; url=' + base + '?t=' + Date.now());
+  }
+})();
+</script>
 </head>
 <body>
 <div id="o">
@@ -164,12 +175,6 @@ function render() {
 window.onload = function() {
   render();
   updateLiveStatuses();
-
-  // === OPERA MINI EXTREME WORKAROUND (2 lines) ===
-  // Runs on the proxy during initial load → snapshot gets a fresh URL for next refresh
-  var meta = document.querySelector('meta[http-equiv="refresh"]');
-  var base = window.location.href.split('?')[0];           // strip any old ?t=
-  meta.setAttribute('content', '10; url=' + base + '?t=' + Date.now());
 };
 </script>
 </body>
