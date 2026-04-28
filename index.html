@@ -1,42 +1,62 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Auto-refresh (10s)</title>
-
-  <!-- Meta refresh fallback (works without JS) -->
-  <meta http-equiv="refresh" content="10">
-  <style>body{font-family:Arial,Helvetica,sans-serif;padding:1rem}</style>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Android 2.3 Network Test</title>
+<style>
+body { background:#000; color:#eee; font-family:Arial; padding:10px; }
+h2 { margin-top:20px; }
+.ok { color:#0f0; }
+.fail { color:#f33; }
+</style>
 </head>
 <body>
-  <h1>Auto-refresh test</h1>
-  <p id="time">Server/client time: unknown</p>
-  <p>This page refreshes every 10 seconds. Meta refresh works without JS; JS adds a cache-busting query when available.</p>
 
-  <script>
-  (function(){
-    // show local time
-    function show(){ document.getElementById('time').textContent = new Date().toISOString().replace('T',' ').split('.')[0]; }
-    show();
+<h1>Android 2.3 Network Test</h1>
+<p>This will show what your Kindle Fire can actually connect to.</p>
 
-    // remove meta refresh so we control reloads when JS is allowed
-    var metas = document.getElementsByTagName('meta');
-    for(var i=0;i<metas.length;i++){
-      if(metas[i].httpEquiv && metas[i].httpEquiv.toLowerCase()==='refresh'){
-        metas[i].parentNode.removeChild(metas[i]); break;
-      }
+<div id="results"></div>
+
+<script type="text/javascript">
+// ES3 ONLY — works on Android 2.3
+
+function test(url, label) {
+    var div = document.createElement("div");
+    div.innerHTML = label + ": testing...";
+    document.getElementById("results").appendChild(div);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url + "?ts=" + new Date().getTime(), true);
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 400) {
+                div.innerHTML = label + ": <span class='ok'>OK ✔</span>";
+            } else {
+                div.innerHTML = label + ": <span class='fail'>FAILED ✘</span>";
+            }
+        }
+    };
+
+    xhr.onerror = function() {
+        div.innerHTML = label + ": <span class='fail'>FAILED ✘</span>";
+    };
+
+    try {
+        xhr.send(null);
+    } catch(e) {
+        div.innerHTML = label + ": <span class='fail'>FAILED ✘</span>";
     }
+}
 
-    // reload every 10s with cache-busting query
-    setInterval(function(){
-      var base = location.pathname || '/';
-      var sep = base.indexOf('?') === -1 ? '?' : '&';
-      location.replace(base + sep + 'ts=' + Date.now());
-    }, 10000);
-  })();
-  </script>
+test("http://example.com", "HTTP (old server)");
+test("https://example.com", "HTTPS (old TLS)");
+test("https://google.com", "HTTPS (modern TLS)");
+test("https://yourusername.github.io/status.json", "GitHub Pages JSON");
+test("https://api.twitch.tv/helix/streams?user_login=xqc", "Twitch API");
+test("https://kick.com/api/v1/channels/xqc", "Kick API");
 
-  <noscript><p>JavaScript disabled: meta refresh will still reload every 10s.</p></noscript>
+</script>
+
 </body>
 </html>
